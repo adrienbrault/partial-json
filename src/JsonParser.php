@@ -29,7 +29,7 @@ class JsonParser
         $this->onExtraToken = $onExtraToken;
     }
 
-    public function parse($s, bool $associative = true)
+    public function parse(string $s, bool $associative = true)
     {
         if (strlen($s) >= 1) {
             try {
