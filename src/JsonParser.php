@@ -7,7 +7,6 @@ use JsonException;
 class JsonParser
 {
     private $parsers = [];
-    private $lastParseReminding = null;
     private $onExtraToken;
 
     public function __construct()
@@ -36,7 +35,6 @@ class JsonParser
                 return json_decode($s, $associative, 512, JSON_THROW_ON_ERROR);
             } catch (JsonException $e) {
                 list($data, $reminding) = $this->parseAny($s, $e);
-                $this->lastParseReminding = $reminding;
                 if ($this->onExtraToken && $reminding) {
                     call_user_func($this->onExtraToken, $s, $data, $reminding);
                 }
