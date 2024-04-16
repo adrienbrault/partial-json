@@ -9,7 +9,10 @@ class JsonParser
     private $parsers = [];
     private $onExtraToken;
 
-    public function __construct()
+    /**
+     * @param callable(string, mixed, string) $onExtraToken
+     */
+    public function __construct($onExtraToken = null)
     {
         $this->parsers = array_fill_keys([' ', "\r", "\n", "\t"], 'parseSpace');
         $this->parsers['['] = 'parseArray';
@@ -23,9 +26,7 @@ class JsonParser
             $this->parsers[$char] = 'parseNumber';
         }
 
-        $this->onExtraToken = function ($text, $data, $reminding) {
-            echo 'Parsed JSON with extra tokens: ' . json_encode(['text' => $text, 'data' => $data, 'reminding' => $reminding]);
-        };
+        $this->onExtraToken = $onExtraToken;
     }
 
     public function parse($s, bool $associative = true)
@@ -35,7 +36,8 @@ class JsonParser
                 return json_decode($s, $associative, 512, JSON_THROW_ON_ERROR);
             } catch (JsonException $e) {
                 list($data, $reminding) = $this->parseAny($s, $e);
-                if ($this->onExtraToken && $reminding) {
+
+                if (null !== $this->onExtraToken && $reminding) {
                     call_user_func($this->onExtraToken, $s, $data, $reminding);
                 }
                 return $data;
