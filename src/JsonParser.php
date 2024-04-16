@@ -6,11 +6,18 @@ use JsonException;
 
 class JsonParser
 {
+    /**
+     * @var array<array-key, string>
+     */
     private $parsers = [];
+
+    /**
+     * @var null|callable(string, mixed, string)s
+     */
     private $onExtraToken;
 
     /**
-     * @param callable(string, mixed, string) $onExtraToken
+     * @param null|callable(string, mixed, string): void $onExtraToken
      */
     public function __construct($onExtraToken = null)
     {
@@ -29,7 +36,7 @@ class JsonParser
         $this->onExtraToken = $onExtraToken;
     }
 
-    public function parse(string $s, bool $associative = true)
+    public function parse(string $s, bool $associative = true): mixed
     {
         if (strlen($s) >= 1) {
             try {
@@ -47,7 +54,10 @@ class JsonParser
         }
     }
 
-    private function parseAny($s, $e)
+    /**
+     * @return array{0: mixed, 1: string}
+     */
+    private function parseAny(string $s, JsonException $e)
     {
         if (!$s) {
             throw $e;
@@ -59,12 +69,18 @@ class JsonParser
         return $this->{$parser}($s, $e);
     }
 
-    private function parseSpace($s, $e)
+    /**
+     * @return array{0: mixed, 1: string}
+     */
+    private function parseSpace(string $s, JsonException $e)
     {
         return $this->parseAny(trim($s), $e);
     }
 
-    private function parseArray($s, $e)
+    /**
+     * @return array{0: mixed, 1: string}
+     */
+    private function parseArray(string $s, JsonException $e)
     {
         $s = substr($s, 1);  // skip starting '['
         $acc = [];
@@ -85,7 +101,10 @@ class JsonParser
         return [$acc, $s];
     }
 
-    private function parseObject($s, $e)
+    /**
+     * @return array{0: mixed, 1: string}
+     */
+    private function parseObject(string $s, JsonException $e)
     {
         $s = substr($s, 1);  // skip starting '{'
         $acc = [];
@@ -129,7 +148,10 @@ class JsonParser
         return [$acc, $s];
     }
 
-    private function parseString($s, $e)
+    /**
+     * @return array{0: mixed, 1: string}
+     */
+    private function parseString(string $s, JsonException $e)
     {
         $end = strpos($s, '"', 1);
         while ($end !== false && $s[$end - 1] == '\\') {  // Handle escaped quotes
@@ -144,7 +166,10 @@ class JsonParser
         return [json_decode($strVal), $s];
     }
 
-    private function parseNumber($s, $e)
+    /**
+     * @return array{0: mixed, 1: string}
+     */
+    private function parseNumber(string $s, JsonException $e)
     {
         $i = 0;
         while ($i < strlen($s) && strpos('0123456789.-', $s[$i]) !== false) {
@@ -164,7 +189,10 @@ class JsonParser
         return [$num, $s];
     }
 
-    private function parseTrue($s, $e)
+    /**
+     * @return array{0: mixed, 1: string}
+     */
+    private function parseTrue(string $s, JsonException $e)
     {
         if (substr($s, 0, 4) == 'true') {
             return [true, substr($s, 4)];
@@ -172,7 +200,10 @@ class JsonParser
         throw $e;
     }
 
-    private function parseFalse($s, $e)
+    /**
+     * @return array{0: mixed, 1: string}
+     */
+    private function parseFalse(string $s, JsonException $e)
     {
         if (substr($s, 0, 5) == 'false') {
             return [false, substr($s, 5)];
@@ -180,7 +211,10 @@ class JsonParser
         throw $e;
     }
 
-    private function parseNull($s, $e)
+    /**
+     * @return array{0: mixed, 1: string}
+     */
+    private function parseNull(string $s, JsonException $e): array
     {
         if (substr($s, 0, 4) == 'null') {
             return [null, substr($s, 4)];

@@ -17,7 +17,8 @@
     "minimum-stability": "alpha",
     "require-dev": {
         "php": "^8.2",
-        "pestphp/pest": "^2.28"
+        "pestphp/pest": "^2.28",
+        "phpstan/phpstan": "^1.10"
     },
     "config": {
         "allow-plugins": {
