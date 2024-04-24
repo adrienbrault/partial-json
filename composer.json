@@ -1,5 +1,5 @@
 {
-    "name": "greghunt/partial-json",
+    "name": "adrienbrault/partial-json",
     "description": "Parse incomplete JSON. Great for streamed JSON.",
     "license": "MIT",
     "type": "library",
